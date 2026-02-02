@@ -12,6 +12,7 @@ pub struct TantivyEngine {
     index: Index,
     reader: IndexReader,
     writer: IndexWriter,
+    #[allow(dead_code)]
     schema: Schema,
     fields: TantivyFields,
 }
@@ -36,8 +37,17 @@ impl TantivyEngine {
         let tags = schema_builder.add_text_field("tags", TEXT);
         let schema = schema_builder.build();
 
-        let index = Index::create_in_dir(path, schema.clone())
-            .map_err(|e| AxiomError::Search(e.to_string()))?;
+        // Check if index already exists by looking for meta.json
+        let meta_path = path.join("meta.json");
+        let index = if meta_path.exists() {
+            // Open existing index
+            Index::open_in_dir(path)
+                .map_err(|e| AxiomError::Search(format!("Failed to open index: {}", e)))?
+        } else {
+            // Create new index
+            Index::create_in_dir(path, schema.clone())
+                .map_err(|e| AxiomError::Search(format!("Failed to create index: {}", e)))?
+        };
 
         let reader = index
             .reader_builder()
@@ -149,5 +159,6 @@ impl TantivyEngine {
 
 pub struct SearchResult {
     pub doc_id: String,
+    #[allow(dead_code)]
     pub score: f32,
 }

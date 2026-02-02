@@ -37,3 +37,10 @@ temp/
 
 # NPM token (never commit)
 .npmrc
+
+# Database & Data files
+*.db
+*.db-*
+*.surreal
+.axiom/
+AxiomDocuments/

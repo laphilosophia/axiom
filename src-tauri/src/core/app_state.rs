@@ -19,10 +19,19 @@ impl AppState {
     }
 
     pub async fn initialize(&mut self, workspace_path: PathBuf) -> anyhow::Result<()> {
+        use tracing::info;
+
         self.workspace_path = Some(workspace_path.clone());
 
-        // Initialize SurrealDB
+        // Initialize SurrealDB (in-memory)
         let db = SurrealDb::new(&workspace_path.join(".axiom/db")).await?;
+
+        // Load existing documents from sidecar files for persistence
+        let loaded = db.load_documents_from_workspace(&workspace_path).await?;
+        if loaded > 0 {
+            info!("Loaded {} documents from workspace", loaded);
+        }
+
         self.db = Some(db);
 
         // Initialize Tantivy

@@ -22,6 +22,7 @@ pub enum AxiomError {
     #[error("Workspace not initialized")]
     WorkspaceNotInitialized,
 
+    #[allow(dead_code)]
     #[error("ML inference error: {0}")]
     MlInference(String),
 

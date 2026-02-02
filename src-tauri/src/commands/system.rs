@@ -29,3 +29,11 @@ pub async fn set_workspace_path(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn get_home_dir() -> Result<String> {
+    let home = dirs::home_dir().ok_or_else(|| {
+        crate::core::errors::AxiomError::FileSystem("Could not find home directory".to_string())
+    })?;
+    Ok(home.to_string_lossy().to_string())
+}

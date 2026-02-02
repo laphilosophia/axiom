@@ -36,6 +36,7 @@ impl std::str::FromStr for DocumentStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Document {
     pub id: String,
     pub title: String,
@@ -68,16 +69,18 @@ impl Document {
 
     pub fn can_transition_to(&self, new_status: &DocumentStatus) -> bool {
         match (&self.status, new_status) {
-            // Draft can become Active
-            (DocumentStatus::Draft, DocumentStatus::Active) => true,
-            // Active can become Superseded or Archived
-            (DocumentStatus::Active, DocumentStatus::Superseded) => true,
-            (DocumentStatus::Active, DocumentStatus::Archived) => true,
-            // Cannot transition from Superseded or Archived
-            (DocumentStatus::Superseded, _) => false,
-            (DocumentStatus::Archived, _) => false,
             // Same status is always allowed
             (old, new) if old == new => true,
+            // Draft can become anything
+            (DocumentStatus::Draft, _) => true,
+            // Active can become anything
+            (DocumentStatus::Active, _) => true,
+            // Superseded can be reactivated or archived
+            (DocumentStatus::Superseded, DocumentStatus::Active) => true,
+            (DocumentStatus::Superseded, DocumentStatus::Archived) => true,
+            // Archived can be reactivated
+            (DocumentStatus::Archived, DocumentStatus::Active) => true,
+            (DocumentStatus::Archived, DocumentStatus::Draft) => true,
             // Everything else is invalid
             _ => false,
         }
@@ -99,6 +102,7 @@ impl Document {
         self.updated_at = Utc::now();
     }
 
+    #[allow(dead_code)]
     pub fn set_status(&mut self, status: DocumentStatus) {
         self.status = status;
         self.updated_at = Utc::now();

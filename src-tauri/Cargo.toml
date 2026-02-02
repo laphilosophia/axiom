@@ -2,7 +2,7 @@
 name = "axiom"
 version = "0.1.0"
 description = "Document Orchestrator - Local document lifecycle management"
-authors = ["Axiom Team"]
+authors = ["Erdem Arslan"]
 license = "MIT"
 repository = ""
 edition = "2021"

@@ -52,11 +52,13 @@ impl FileManager {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub async fn read_document(&self, document_id: &str) -> Result<String> {
         let doc_path = self.document_path(document_id);
         fs::read_to_string(&doc_path).map_err(|e| AxiomError::FileSystem(e.to_string()))
     }
 
+    #[allow(dead_code)]
     pub async fn read_sidecar(&self, document_id: &str) -> Result<Option<SidecarMetadata>> {
         let sidecar_path = self.sidecar_path(document_id);
 
@@ -84,6 +86,7 @@ impl FileManager {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub async fn list_documents(&self) -> Result<Vec<(String, PathBuf)>> {
         let docs_dir = self.workspace_path.join("documents");
 
@@ -122,6 +125,7 @@ impl FileManager {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub fn check_disk_space(&self) -> Result<u64> {
         // Platform-specific disk space check
         // For now, return a placeholder value

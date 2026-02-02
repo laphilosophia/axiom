@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/tauri'
-import { AlertCircle, Archive, FileCheck, Save } from 'lucide-preact'
+import { AlertCircle, Archive, FileCheck, Save, X } from 'lucide-preact'
 import { useCallback, useEffect, useState } from 'preact/hooks'
 import type { Document, DocumentStatus } from '../types/document'
 import { debounce } from '../utils/debounce'
@@ -7,6 +7,7 @@ import { debounce } from '../utils/debounce'
 interface EditorPanelProps {
   document: Document | null
   onDocumentChange: () => void
+  onClose: () => void
 }
 
 const statusOptions: {
@@ -20,7 +21,7 @@ const statusOptions: {
   { value: 'archived', label: 'Archived', icon: Archive },
 ]
 
-export function EditorPanel({ document, onDocumentChange }: EditorPanelProps) {
+export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanelProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState('')
@@ -141,10 +142,9 @@ export function EditorPanel({ document, onDocumentChange }: EditorPanelProps) {
               onChange={(e) =>
                 handleStatusChange((e.target as HTMLSelectElement).value as DocumentStatus)
               }
-              disabled={isReadOnly}
               class="px-3 py-1.5 bg-surface border border-border rounded-lg text-sm
                      text-white focus:border-accent-indigo focus:outline-none
-                     disabled:opacity-50 cursor-pointer">
+                     cursor-pointer">
               {statusOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
@@ -164,6 +164,14 @@ export function EditorPanel({ document, onDocumentChange }: EditorPanelProps) {
                 Saved {lastSaved.toLocaleTimeString()}
               </span>
             ) : null}
+
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              class="p-1.5 text-gray-500 hover:text-white hover:bg-surface rounded transition-colors"
+              title="Close document">
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 

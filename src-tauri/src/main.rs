@@ -42,6 +42,7 @@ fn main() {
             // System commands
             commands::system::get_workspace_path,
             commands::system::set_workspace_path,
+            commands::system::get_home_dir,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

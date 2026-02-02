@@ -1,4 +1,4 @@
-import { FileText, Filter, Plus, Search } from 'lucide-preact'
+import { FileText, Filter, Plus, Search, Trash2 } from 'lucide-preact'
 import { useMemo, useState } from 'preact/hooks'
 import type { Document, DocumentStatus } from '../types/document'
 
@@ -7,6 +7,7 @@ interface LibraryPanelProps {
   selectedDocument: Document | null
   onSelectDocument: (doc: Document) => void
   onCreateDocument: () => void
+  onDeleteDocument: (id: string) => void
 }
 
 const statusOrder: DocumentStatus[] = ['active', 'draft', 'superseded', 'archived']
@@ -23,6 +24,7 @@ export function LibraryPanel({
   selectedDocument,
   onSelectDocument,
   onCreateDocument,
+  onDeleteDocument,
 }: LibraryPanelProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<DocumentStatus | null>(null)
@@ -117,32 +119,47 @@ export function LibraryPanel({
 
             <div class="mt-1 space-y-1">
               {docs.map((doc) => (
-                <button
+                <div
                   key={doc.id}
-                  onClick={() => onSelectDocument(doc)}
-                  class={`w-full text-left p-3 rounded-lg transition-all duration-200 group ${
+                  class={`flex items-center gap-1 rounded-lg transition-all duration-200 group ${
                     selectedDocument?.id === doc.id
                       ? 'bg-accent-indigo/20 border border-accent-indigo/50'
                       : 'hover:bg-surface border border-transparent'
                   }`}>
-                  <h4
-                    class={`text-sm font-medium truncate ${
-                      status === 'superseded' ? 'text-gray-500 line-through' : 'text-white'
-                    }`}>
-                    {doc.title}
-                  </h4>
-                  <div class="flex items-center justify-between mt-1">
-                    <span class="text-xs text-gray-500">
-                      {new Date(doc.updatedAt).toLocaleDateString()}
-                    </span>
-                    {doc.tags.length > 0 && (
-                      <span class="text-xs text-gray-600">
-                        {doc.tags.slice(0, 2).join(', ')}
-                        {doc.tags.length > 2 && '...'}
+                  <button
+                    onClick={() => onSelectDocument(doc)}
+                    class="flex-1 text-left p-3">
+                    <h4
+                      class={`text-sm font-medium truncate ${
+                        status === 'superseded' ? 'text-gray-500 line-through' : 'text-white'
+                      }`}>
+                      {doc.title}
+                    </h4>
+                    <div class="flex items-center justify-between mt-1">
+                      <span class="text-xs text-gray-500">
+                        {new Date(doc.updatedAt).toLocaleDateString()}
                       </span>
-                    )}
-                  </div>
-                </button>
+                      {doc.tags.length > 0 && (
+                        <span class="text-xs text-gray-600">
+                          {doc.tags.slice(0, 2).join(', ')}
+                          {doc.tags.length > 2 && '...'}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Delete this document?')) {
+                        onDeleteDocument(doc.id);
+                      }
+                    }}
+                    class="p-2 mr-1 opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-500
+                           hover:bg-red-500/10 rounded transition-all"
+                    title="Delete document">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               ))}
             </div>
           </div>

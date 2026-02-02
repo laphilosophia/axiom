@@ -17,6 +17,7 @@ impl std::fmt::Display for RelationshipType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Relationship {
     pub id: String,
     pub from_document_id: String,
@@ -57,6 +58,7 @@ impl Relationship {
 
 /// Collection of relationships for a document
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DocumentRelationships {
     pub supersedes: Vec<String>,       // Documents this one supersedes
     pub references: Vec<String>,       // Documents this one references
@@ -97,6 +99,7 @@ impl DocumentRelationships {
         }
     }
 
+    #[allow(dead_code)]
     pub fn remove_outgoing(&mut self, doc_id: &str, rel_type: RelationshipType) {
         match rel_type {
             RelationshipType::Supersedes => {
@@ -108,6 +111,7 @@ impl DocumentRelationships {
         }
     }
 
+    #[allow(dead_code)]
     pub fn remove_incoming(&mut self, doc_id: &str, rel_type: RelationshipType) {
         match rel_type {
             RelationshipType::Supersedes => {

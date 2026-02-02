@@ -6,6 +6,7 @@ use super::document::DocumentStatus;
 
 /// Sidecar metadata file format for portability
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SidecarMetadata {
     pub version: String,
     pub id: String,
@@ -19,6 +20,7 @@ pub struct SidecarMetadata {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct RelationshipMetadata {
     pub supersedes: Vec<String>,
     pub references: Vec<String>,
