@@ -3,6 +3,7 @@ use std::path::Path;
 use tantivy::collector::TopDocs;
 use tantivy::query::QueryParser;
 use tantivy::schema::{Field, Schema, Value as _, STORED, TEXT};
+use tantivy::snippet::SnippetGenerator;
 use tantivy::{doc, Index, IndexReader, IndexWriter, Searcher, TantivyDocument};
 
 use crate::core::document::Document;
@@ -127,38 +128,105 @@ impl TantivyEngine {
             vec![self.fields.title, self.fields.content, self.fields.tags],
         );
 
-        let query = query_parser
+        let parsed_query = query_parser
             .parse_query(query)
             .map_err(|e| AxiomError::Search(e.to_string()))?;
 
         let top_docs = searcher
-            .search(&query, &TopDocs::with_limit(limit))
+            .search(&parsed_query, &TopDocs::with_limit(limit))
             .map_err(|e| AxiomError::Search(e.to_string()))?;
 
+        // Setup snippet generator for highlighting
+        let snippet_generator: SnippetGenerator =
+            SnippetGenerator::create(&searcher, &parsed_query, self.fields.content)
+                .map_err(|e: tantivy::TantivyError| AxiomError::Search(e.to_string()))?;
+
         let mut results = Vec::new();
-        for (_score, doc_address) in top_docs {
+        for (score, doc_address) in top_docs {
             let retrieved_doc: TantivyDocument = searcher
                 .doc(doc_address)
                 .map_err(|e| AxiomError::Search(e.to_string()))?;
 
-            // Get document ID from the retrieved doc
-            if let Some(id_value) = retrieved_doc.get_first(self.fields.id) {
-                let id_str: &str = id_value.as_str().unwrap_or("");
-                if !id_str.is_empty() {
-                    results.push(SearchResult {
-                        doc_id: id_str.to_string(),
-                        score: _score,
-                    });
-                }
+            // Get document ID
+            let id = retrieved_doc
+                .get_first(self.fields.id)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+
+            if id.is_empty() {
+                continue;
             }
+
+            // Get title
+            let title = retrieved_doc
+                .get_first(self.fields.title)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+
+            // Get status
+            let status = retrieved_doc
+                .get_first(self.fields.status)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+
+            // Generate snippet with highlighting
+            let snippet = snippet_generator.snippet_from_doc(&retrieved_doc);
+            let snippet_html = snippet.to_html();
+
+            results.push(SearchResult {
+                doc_id: id,
+                title,
+                status,
+                snippet: if snippet_html.is_empty() {
+                    None
+                } else {
+                    Some(snippet_html)
+                },
+                score,
+            });
         }
 
         Ok(results)
     }
+
+    /// Search with status filter
+    pub fn search_with_status(
+        &self,
+        query: &str,
+        status_filter: Option<&str>,
+        limit: usize,
+    ) -> Result<Vec<SearchResult>> {
+        let full_query = match status_filter {
+            Some(status) => format!("({}) AND status:{}", query, status),
+            None => query.to_string(),
+        };
+        self.search(&full_query, limit)
+    }
+
+    /// Search with tag filter
+    pub fn search_with_tag(
+        &self,
+        query: &str,
+        tag: Option<&str>,
+        limit: usize,
+    ) -> Result<Vec<SearchResult>> {
+        let full_query = match tag {
+            Some(t) => format!("({}) AND tags:{}", query, t),
+            None => query.to_string(),
+        };
+        self.search(&full_query, limit)
+    }
 }
 
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchResult {
     pub doc_id: String,
-    #[allow(dead_code)]
+    pub title: String,
+    pub status: String,
+    pub snippet: Option<String>,
     pub score: f32,
 }

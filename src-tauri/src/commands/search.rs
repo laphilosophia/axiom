@@ -119,3 +119,36 @@ pub async fn find_similar_documents(
 
     Ok(results)
 }
+
+/// Search with snippets for UI display (supports status and tag filtering)
+#[tauri::command]
+pub async fn search_with_snippets(
+    state: State<'_, Arc<Mutex<AppState>>>,
+    query: String,
+    status_filter: Option<String>,
+    tag_filter: Option<String>,
+    limit: Option<usize>,
+) -> Result<Vec<crate::search::tantivy_engine::SearchResult>> {
+    let state = state.lock().await;
+
+    let limit = limit.unwrap_or(10);
+
+    // Use Tantivy for full-text search with snippets
+    if let Some(search_engine) = state.search_engine.as_ref() {
+        let results = match (&status_filter, &tag_filter) {
+            (Some(status), Some(tag)) => {
+                // Combine both filters in query
+                let combined = format!("({}) AND status:{} AND tags:{}", query, status, tag);
+                search_engine.search(&combined, limit)?
+            }
+            (Some(status), None) => {
+                search_engine.search_with_status(&query, Some(status), limit)?
+            }
+            (None, Some(tag)) => search_engine.search_with_tag(&query, Some(tag), limit)?,
+            (None, None) => search_engine.search(&query, limit)?,
+        };
+        return Ok(results);
+    }
+
+    Ok(Vec::new())
+}

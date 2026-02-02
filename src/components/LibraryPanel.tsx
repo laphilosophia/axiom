@@ -19,6 +19,20 @@ const statusLabels: Record<DocumentStatus, string> = {
   archived: 'Archived',
 }
 
+// Helper function to highlight search matches
+function highlightText(text: string, query: string) {
+  if (!query.trim()) return text
+
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+  const parts = text.split(regex)
+
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} class="bg-accent-indigo/40 text-white rounded px-0.5">{part}</mark>
+    ) : part
+  )
+}
+
 export function LibraryPanel({
   documents,
   selectedDocument,
@@ -142,7 +156,7 @@ export function LibraryPanel({
                       class={`text-sm font-medium truncate ${
                         status === 'superseded' ? 'text-gray-500 line-through' : 'text-white'
                       }`}>
-                      {doc.title}
+                      {searchQuery ? highlightText(doc.title, searchQuery) : doc.title}
                     </h4>
                     <div class="flex items-center justify-between mt-1">
                       <span class="text-xs text-gray-500">
@@ -150,7 +164,12 @@ export function LibraryPanel({
                       </span>
                       {doc.tags.length > 0 && (
                         <span class="text-xs text-gray-600">
-                          {doc.tags.slice(0, 2).join(', ')}
+                          {doc.tags.slice(0, 2).map((tag, i) => (
+                            <span key={tag}>
+                              {i > 0 && ', '}
+                              {searchQuery ? highlightText(tag, searchQuery) : tag}
+                            </span>
+                          ))}
                           {doc.tags.length > 2 && '...'}
                         </span>
                       )}

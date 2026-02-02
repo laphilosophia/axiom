@@ -36,6 +36,7 @@ fn main() {
             // Search commands
             commands::search::search_documents,
             commands::search::find_similar_documents,
+            commands::search::search_with_snippets,
             // Relationship commands
             commands::relationships::get_document_relationships,
             commands::relationships::create_relationship,

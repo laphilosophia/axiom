@@ -9,6 +9,20 @@ interface CommandPaletteProps {
   onSelectDocument: (doc: Document) => void
 }
 
+// Helper function to highlight search matches
+function highlightText(text: string, query: string) {
+  if (!query.trim()) return text
+
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+  const parts = text.split(regex)
+
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} class="bg-accent-indigo/40 text-white rounded px-0.5">{part}</mark>
+    ) : part
+  )
+}
+
 type Command = {
   id: string
   title: string
@@ -165,7 +179,7 @@ export function CommandPalette({
                       class={`text-sm font-medium truncate ${
                         index === selectedIndex ? 'text-white' : 'text-gray-200'
                       }`}>
-                      {command.title}
+                      {query ? highlightText(command.title, query) : command.title}
                     </h4>
                     <p class="text-xs text-gray-500 truncate">{command.description}</p>
                   </div>
