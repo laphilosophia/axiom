@@ -1,0 +1,44 @@
+[package]
+name = "axiom"
+version = "0.1.0"
+description = "Document Orchestrator - Local document lifecycle management"
+authors = ["Axiom Team"]
+license = "MIT"
+repository = ""
+edition = "2021"
+rust-version = "1.75"
+
+[build-dependencies]
+tauri-build = { version = "1.5.1", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.6.0", features = ["fs-all", "shell-open"] }
+tokio = { version = "1.35", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Core dependencies
+surrealdb = { version = "1.2", features = ["kv-mem"] }
+tantivy = "0.21"
+ort = { version = "1.16", features = ["ndarray"] }
+ndarray = "0.15"
+
+# File system
+notify = { version = "6.1", features = ["macos_fsevent"] }
+notify-debouncer-mini = "0.4"
+walkdir = "2.4"
+
+# Utilities
+uuid = { version = "1.6", features = ["v4", "serde"] }
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+anyhow = "1.0"
+dirs = "5.0"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
