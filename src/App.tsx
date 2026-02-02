@@ -4,6 +4,7 @@ import { CommandPalette } from './components/CommandPalette'
 import { EditorPanel } from './components/EditorPanel'
 import { LibraryPanel } from './components/LibraryPanel'
 import { OrchestrationPanel } from './components/OrchestrationPanel'
+import { ToastContainer, useToast } from './components/Toast'
 import { documentsSignal, useAppStore } from './stores/appStore'
 import type { Document } from './types/document'
 
@@ -19,6 +20,7 @@ export function App() {
     setSelectedDocument,
     setIsLoading,
   } = useAppStore()
+  const { toasts, dismiss, showToast } = useToast()
 
   useEffect(() => {
     // Check workspace on startup
@@ -96,7 +98,7 @@ export function App() {
 
   const handleCreateDocument = async () => {
     if (!isWorkspaceReady) {
-      alert('Please wait for workspace to be initialized...')
+      showToast('Please wait for workspace to be initialized...', 'warning')
       return
     }
 
@@ -108,9 +110,10 @@ export function App() {
       const currentDocs = documentsSignal.value
       setDocuments([newDoc, ...currentDocs])
       setSelectedDocument(newDoc)
+      showToast('Document created', 'success')
     } catch (error) {
       console.error('Failed to create document:', error)
-      alert('Failed to create document. Error: ' + JSON.stringify(error))
+      showToast('Failed to create document', 'error')
     }
   }
 
@@ -173,8 +176,10 @@ export function App() {
         setSelectedDocument(null)
       }
       await refreshDocuments()
+      showToast('Document deleted successfully', 'success')
     } catch (error) {
       console.error('Failed to delete document:', error)
+      showToast('Failed to delete document', 'error')
     }
   }
 
@@ -226,6 +231,9 @@ export function App() {
           setIsCommandPaletteOpen(false)
         }}
       />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   )
 }
