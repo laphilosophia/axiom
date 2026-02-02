@@ -1,6 +1,7 @@
 import { FileText, Filter, Plus, Search, Trash2 } from 'lucide-preact'
 import { useCallback, useMemo, useState } from 'preact/hooks'
 import type { Document, DocumentStatus } from '../types/document'
+import { ConfirmDialog } from './ui/ConfirmDialog'
 
 interface LibraryPanelProps {
   documents: Document[]
@@ -73,14 +74,22 @@ export function LibraryPanel({
     return grouped
   }, [documents, searchQuery, statusFilter])
 
-  const handleDeleteDocument = useCallback(async (e: MouseEvent, id: string) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [documentToDelete, setDocumentToDelete] = useState<string | null>(null)
+
+  const handleDeleteClick = useCallback((e: MouseEvent, id: string) => {
     e.stopPropagation();
     e.preventDefault();
-    const confirmed = await window.confirm('Delete this document?');
-    if (confirmed) {
-      onDeleteDocument(id)
+    setDocumentToDelete(id)
+    setDeleteDialogOpen(true)
+  }, [])
+
+  const handleConfirmDelete = useCallback(() => {
+    if (documentToDelete) {
+      onDeleteDocument(documentToDelete)
+      setDocumentToDelete(null)
     }
-  }, [onDeleteDocument])
+  }, [documentToDelete, onDeleteDocument])
 
   return (
     <aside class="w-80 h-full glass-panel flex flex-col border-r border-border">
@@ -177,7 +186,7 @@ export function LibraryPanel({
                   </button>
                   <button
                     type="button"
-                    onClick={(e) => handleDeleteDocument(e, doc.id)}
+                    onClick={(e) => handleDeleteClick(e, doc.id)}
                     class={`p-2 mr-1 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded transition-all ${
                       selectedDocument?.id === doc.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                     }`}
@@ -206,6 +215,18 @@ export function LibraryPanel({
           Ready
         </span>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Document"
+        description="Are you sure you want to delete this document? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+      />
     </aside>
   )
 }

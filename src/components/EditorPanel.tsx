@@ -1,8 +1,11 @@
 import { invoke } from '@tauri-apps/api/tauri'
-import { AlertCircle, Archive, FileCheck, Save, X } from 'lucide-preact'
+import { AlertCircle, Archive, Eye, FileCheck, FileText, Save, X } from 'lucide-preact'
 import { useCallback, useEffect, useState } from 'preact/hooks'
 import type { Document, DocumentStatus } from '../types/document'
 import { debounce } from '../utils/debounce'
+import { MarkdownPreview } from './MarkdownPreview'
+import { MilkdownEditor } from './MilkdownEditor'
+import { Select } from './ui/Select'
 
 interface EditorPanelProps {
   document: Document | null
@@ -15,11 +18,11 @@ const statusOptions: {
   label: string
   icon: typeof Save
 }[] = [
-  { value: 'draft', label: 'Draft', icon: AlertCircle },
-  { value: 'active', label: 'Active', icon: FileCheck },
-  { value: 'superseded', label: 'Superseded', icon: Archive },
-  { value: 'archived', label: 'Archived', icon: Archive },
-]
+    { value: 'draft', label: 'Draft', icon: AlertCircle },
+    { value: 'active', label: 'Active', icon: FileCheck },
+    { value: 'superseded', label: 'Superseded', icon: Archive },
+    { value: 'archived', label: 'Archived', icon: Archive },
+  ]
 
 export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanelProps) {
   const [title, setTitle] = useState('')
@@ -28,6 +31,7 @@ export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanel
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit')
 
   // Load document data
   useEffect(() => {
@@ -102,7 +106,7 @@ export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanel
 
   if (!document) {
     return (
-      <main class="flex-1 h-full flex items-center justify-center bg-background">
+      <main class="flex-1 h-full flex items-center justify-center bg-background border-t border-border">
         <div class="text-center">
           <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface flex items-center justify-center">
             <Save className="w-8 h-8 text-gray-600" />
@@ -137,20 +141,12 @@ export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanel
 
           <div class="flex items-center gap-3">
             {/* Status Selector */}
-            <select
+            <Select
               value={document.status}
-              onChange={(e) =>
-                handleStatusChange((e.target as HTMLSelectElement).value as DocumentStatus)
-              }
-              class="px-3 py-1.5 bg-surface border border-border rounded-lg text-sm
-                     text-white focus:border-accent-indigo focus:outline-none
-                     cursor-pointer">
-              {statusOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={(value) => handleStatusChange(value as DocumentStatus)}
+              options={statusOptions}
+              disabled={isReadOnly}
+            />
 
             {/* Save Indicator */}
             {isSaving ? (
@@ -164,6 +160,30 @@ export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanel
                 Saved {lastSaved.toLocaleTimeString()}
               </span>
             ) : null}
+
+            {/* View Mode Toggle */}
+            <div class="flex items-center bg-surface rounded-lg p-0.5">
+              <button
+                onClick={() => setViewMode('edit')}
+                class={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${viewMode === 'edit'
+                    ? 'bg-accent-indigo text-white'
+                    : 'text-gray-400 hover:text-white'
+                  }`}
+                title="Edit mode">
+                <FileText className="w-3 h-3" />
+                Edit
+              </button>
+              <button
+                onClick={() => setViewMode('preview')}
+                class={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${viewMode === 'preview'
+                    ? 'bg-accent-indigo text-white'
+                    : 'text-gray-400 hover:text-white'
+                  }`}
+                title="Preview mode">
+                <Eye className="w-3 h-3" />
+                Preview
+              </button>
+            </div>
 
             {/* Close Button */}
             <button
@@ -211,17 +231,17 @@ export function EditorPanel({ document, onDocumentChange, onClose }: EditorPanel
       </header>
 
       {/* Editor Content */}
-      <div class="flex-1 overflow-hidden">
-        <textarea
-          value={content}
-          onInput={(e) => handleContentChange((e.target as HTMLTextAreaElement).value)}
-          disabled={isReadOnly}
-          placeholder="Start writing..."
-          class="w-full h-full p-6 bg-transparent resize-none outline-none text-gray-200
-                 placeholder-gray-600 font-mono text-sm leading-relaxed
-                 disabled:opacity-70 disabled:sepia-[.3]"
-          spellcheck={false}
-        />
+      <div class="flex-1 overflow-hidden flex flex-col">
+        {viewMode === 'edit' ? (
+          <MilkdownEditor
+            content={content}
+            onChange={handleContentChange}
+            readOnly={isReadOnly}
+            placeholder="Start writing..."
+          />
+        ) : (
+          <MarkdownPreview content={content} />
+        )}
       </div>
 
       {/* Footer Info */}

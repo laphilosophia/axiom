@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/tauri'
-import { AlertTriangle, GitBranch, Link, RefreshCw, Sparkles } from 'lucide-preact'
+import { AlertTriangle, ChevronLeft, ChevronRight, GitBranch, Link, RefreshCw, Sparkles } from 'lucide-preact'
 import { useEffect, useState } from 'preact/hooks'
 import type { Document, SimilarityResult } from '../types/document'
 
@@ -9,6 +9,7 @@ interface OrchestrationPanelProps {
 }
 
 export function OrchestrationPanel({ document, onDocumentChange }: OrchestrationPanelProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const [similarDocuments, setSimilarDocuments] = useState<SimilarityResult[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [relationships, setRelationships] = useState<{
@@ -93,19 +94,51 @@ export function OrchestrationPanel({ document, onDocumentChange }: Orchestration
   }
 
   if (!document) {
-    return <aside class="w-80 h-full glass-panel border-l border-border" />
+    return (
+      <aside class={`${isCollapsed ? 'w-12' : 'w-80'} h-full glass-panel border-l border-border border-t-0 transition-all duration-300`}>
+        {isCollapsed && (
+          <button
+            onClick={() => setIsCollapsed(false)}
+            class="w-full p-3 hover:bg-surface transition-colors"
+            title="Expand panel"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-400 mx-auto" />
+          </button>
+        )}
+      </aside>
+    )
   }
 
   return (
-    <aside class="w-80 h-full glass-panel border-l border-border flex flex-col">
+    <aside class={`${isCollapsed ? 'w-12' : 'w-80'} h-full glass-panel border-l border-border flex flex-col transition-all duration-300`}>
       {/* Header */}
-      <div class="p-4 border-b border-border">
-        <h2 class="text-sm font-semibold text-white flex items-center gap-2">
-          <GitBranch className="w-4 h-4 text-accent-indigo" />
-          Orchestration
-        </h2>
+      <div class="p-4 border-b border-border flex items-center justify-between">
+        {isCollapsed ? (
+          <button
+            onClick={() => setIsCollapsed(false)}
+            class="w-full flex justify-center"
+            title="Expand panel"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-400" />
+          </button>
+        ) : (
+          <>
+            <h2 class="text-sm font-semibold text-white flex items-center gap-2">
+              <GitBranch className="w-4 h-4 text-accent-indigo" />
+              Orchestration
+            </h2>
+            <button
+              onClick={() => setIsCollapsed(true)}
+              class="p-1 hover:bg-surface rounded transition-colors"
+              title="Collapse panel"
+            >
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </button>
+          </>
+        )}
       </div>
 
+      {!isCollapsed && (
       <div class="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-6">
         {/* Similar Documents */}
         <section>
@@ -271,6 +304,7 @@ export function OrchestrationPanel({ document, onDocumentChange }: Orchestration
           </div>
         </section>
       </div>
+      )}
     </aside>
   )
 }

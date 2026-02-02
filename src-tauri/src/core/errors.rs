@@ -23,6 +23,10 @@ pub enum AxiomError {
     WorkspaceNotInitialized,
 
     #[allow(dead_code)]
+    #[error("ML error: {0}")]
+    ML(String),
+
+    #[allow(dead_code)]
     #[error("ML inference error: {0}")]
     MlInference(String),
 

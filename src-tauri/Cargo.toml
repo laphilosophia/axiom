@@ -37,6 +37,9 @@ thiserror = "1.0"
 anyhow = "1.0"
 dirs = "5.0"
 
+# ML utilities
+ndarray = "0.15"
+
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]

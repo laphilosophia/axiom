@@ -284,6 +284,7 @@ dependencies = [
  "chrono",
  "dirs",
  "hex",
+ "ndarray",
  "notify",
  "notify-debouncer-mini",
  "serde",

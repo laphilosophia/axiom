@@ -22,19 +22,170 @@
   .font-mono {
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }
+
+  /* Animation utility classes */
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Enhanced hover effects */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Glassmorphism enhancements */
+  .glass-panel {
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Status badges */
+  .status-badge {
+    @apply px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1;
+  }
+
+  .status-badge.active {
+    @apply bg-green-500/20 text-green-400 border border-green-500/30;
+  }
+
+  .status-badge.draft {
+    @apply bg-gray-500/20 text-gray-400 border border-gray-500/30;
+  }
+
+  .status-badge.superseded {
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  }
+
+  .status-badge.archived {
+    @apply bg-gray-600/20 text-gray-500 border border-gray-600/30;
+  }
+
+  /* Prose styles for Markdown Preview */
+  .prose {
+    color: #e5e7eb;
+    line-height: 1.75;
+  }
+
+  .prose h1 {
+    @apply text-2xl font-bold mb-4 text-white mt-6;
+  }
+
+  .prose h2 {
+    @apply text-xl font-semibold mb-3 text-white mt-5;
+  }
+
+  .prose h3 {
+    @apply text-lg font-medium mb-2 text-white mt-4;
+  }
+
+  .prose p {
+    @apply mb-4;
+  }
+
+  .prose ul,
+  .prose ol {
+    @apply mb-4 pl-6;
+  }
+
+  .prose ul {
+    @apply list-disc;
+  }
+
+  .prose ol {
+    @apply list-decimal;
+  }
+
+  .prose li {
+    @apply mb-1;
+  }
+
+  .prose blockquote {
+    @apply pl-4 border-l-4 border-accent-indigo/50 italic text-gray-400 my-4;
+  }
+
+  .prose code {
+    @apply px-1.5 py-0.5 bg-surface rounded text-rose-200 font-mono text-sm;
+  }
+
+  .prose pre {
+    @apply p-4 bg-surface rounded-lg my-4 overflow-x-auto;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose a {
+    @apply text-cyan-200 hover:underline;
+  }
+
+  .prose hr {
+    @apply border-border my-8;
+  }
+
+  .prose strong {
+    @apply font-bold text-white;
+  }
+
+  .prose em {
+    @apply italic;
+  }
+
+  .prose img {
+    @apply max-w-full h-auto rounded-lg my-4;
+  }
+
+  .prose table {
+    @apply w-full border-collapse my-4;
+  }
+
+  .prose th,
+  .prose td {
+    @apply border border-border px-3 py-2 text-left;
+  }
+
+  .prose th {
+    @apply bg-surface font-semibold;
+  }
+
+  .prose input[type="checkbox"] {
+    @apply mr-2;
+  }
 }
 
 @layer components {
   .glass-panel {
     @apply bg-surface backdrop-blur-glass;
     background: rgba(30, 30, 30, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .glass-card {
     @apply bg-surface hover:bg-surface-hover transition-all duration-200;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .status-indicator {
@@ -114,10 +265,13 @@
 
 /* Keyframe Animations */
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
   }
+
   50% {
     opacity: 0.7;
     box-shadow: 0 0 16px rgba(34, 197, 94, 0.8);
@@ -129,6 +283,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -140,6 +295,7 @@
     opacity: 0;
     transform: translateX(16px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -150,70 +306,8 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
-}
-
-/* Animation utility classes */
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out forwards;
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* Enhanced hover effects */
-.hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Glassmorphism enhancements */
-.glass-panel {
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.glass-card:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Status badges */
-.status-badge {
-  @apply px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1;
-}
-
-.status-badge.active {
-  @apply bg-green-500/20 text-green-400 border border-green-500/30;
-}
-
-.status-badge.draft {
-  @apply bg-gray-500/20 text-gray-400 border border-gray-500/30;
-}
-
-.status-badge.superseded {
-  @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
-}
-
-.status-badge.archived {
-  @apply bg-gray-600/20 text-gray-500 border border-gray-600/30;
 }

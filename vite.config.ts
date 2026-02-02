@@ -12,6 +12,10 @@ export default defineConfig({
       '@stores': resolve(__dirname, './src/stores'),
       '@services': resolve(__dirname, './src/services'),
       '@types': resolve(__dirname, './src/types'),
+      // React compat for Radix UI
+      'react': 'preact/compat',
+      'react-dom': 'preact/compat',
+      'react/jsx-runtime': 'preact/jsx-runtime',
     },
   },
   server: {
