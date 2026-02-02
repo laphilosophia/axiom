@@ -1,5 +1,5 @@
 import { FileText, Filter, Plus, Search, Trash2 } from 'lucide-preact'
-import { useMemo, useState } from 'preact/hooks'
+import { useCallback, useMemo, useState } from 'preact/hooks'
 import type { Document, DocumentStatus } from '../types/document'
 
 interface LibraryPanelProps {
@@ -58,6 +58,15 @@ export function LibraryPanel({
 
     return grouped
   }, [documents, searchQuery, statusFilter])
+
+  const handleDeleteDocument = useCallback(async (e: MouseEvent, id: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const confirmed = await window.confirm('Delete this document?');
+    if (confirmed) {
+      onDeleteDocument(id)
+    }
+  }, [onDeleteDocument])
 
   return (
     <aside class="w-80 h-full glass-panel flex flex-col border-r border-border">
@@ -148,14 +157,11 @@ export function LibraryPanel({
                     </div>
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (confirm('Delete this document?')) {
-                        onDeleteDocument(doc.id);
-                      }
-                    }}
-                    class="p-2 mr-1 opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-500
-                           hover:bg-red-500/10 rounded transition-all"
+                    type="button"
+                    onClick={(e) => handleDeleteDocument(e, doc.id)}
+                    class={`p-2 mr-1 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded transition-all ${
+                      selectedDocument?.id === doc.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
                     title="Delete document">
                     <Trash2 className="w-4 h-4" />
                   </button>

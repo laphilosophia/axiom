@@ -67,23 +67,9 @@ impl Document {
         }
     }
 
-    pub fn can_transition_to(&self, new_status: &DocumentStatus) -> bool {
-        match (&self.status, new_status) {
-            // Same status is always allowed
-            (old, new) if old == new => true,
-            // Draft can become anything
-            (DocumentStatus::Draft, _) => true,
-            // Active can become anything
-            (DocumentStatus::Active, _) => true,
-            // Superseded can be reactivated or archived
-            (DocumentStatus::Superseded, DocumentStatus::Active) => true,
-            (DocumentStatus::Superseded, DocumentStatus::Archived) => true,
-            // Archived can be reactivated
-            (DocumentStatus::Archived, DocumentStatus::Active) => true,
-            (DocumentStatus::Archived, DocumentStatus::Draft) => true,
-            // Everything else is invalid
-            _ => false,
-        }
+    pub fn can_transition_to(&self, _new_status: &DocumentStatus) -> bool {
+        // Allow all transitions - user has full control over document lifecycle
+        true
     }
 
     pub fn update_content(&mut self, content: String) {
