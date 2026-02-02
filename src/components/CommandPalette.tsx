@@ -1,6 +1,6 @@
-import type { Document } from '@types/document'
-import { FileText, Plus, Search, Settings } from 'lucide-react'
+import { FileText, Plus, Search, Settings } from 'lucide-preact'
 import { useEffect, useMemo, useState } from 'preact/hooks'
+import type { Document } from '../types/document'
 
 interface CommandPaletteProps {
   isOpen: boolean

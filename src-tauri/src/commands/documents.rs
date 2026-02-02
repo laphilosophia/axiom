@@ -31,12 +31,8 @@ pub async fn create_document(
     let workspace = state
         .workspace_path
         .as_ref()
-        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
-
-    let db = state
-        .db
-        .as_mut()
-        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
+        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?
+        .clone();
 
     // Generate ID
     let id = format!(
@@ -59,10 +55,14 @@ pub async fn create_document(
     document.content = content;
 
     // Save to database
+    let db = state
+        .db
+        .as_mut()
+        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
     db.create_document(&document).await?;
 
     // Save to filesystem
-    let file_manager = crate::fs::file_manager::FileManager::new(workspace.clone());
+    let file_manager = crate::fs::file_manager::FileManager::new(workspace);
     file_manager.write_document(&document).await?;
 
     // Index for search
@@ -87,7 +87,8 @@ pub async fn update_document(
     let workspace = state
         .workspace_path
         .as_ref()
-        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
+        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?
+        .clone();
 
     let db = state
         .db
@@ -125,7 +126,7 @@ pub async fn update_document(
     db.update_document(&document).await?;
 
     // Save to filesystem
-    let file_manager = crate::fs::file_manager::FileManager::new(workspace.clone());
+    let file_manager = crate::fs::file_manager::FileManager::new(workspace);
     file_manager.write_document(&document).await?;
 
     // Update search index
@@ -169,15 +170,11 @@ pub async fn delete_document(state: State<'_, Arc<Mutex<AppState>>>, id: String)
     let workspace = state
         .workspace_path
         .as_ref()
-        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
+        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?
+        .clone();
 
-    let db = state
-        .db
-        .as_mut()
-        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
-
-    // Delete from filesystem
-    let file_manager = crate::fs::file_manager::FileManager::new(workspace.clone());
+    // Delete from filesystem first
+    let file_manager = crate::fs::file_manager::FileManager::new(workspace);
     file_manager.delete_document(&id).await?;
 
     // Delete from search index
@@ -187,6 +184,10 @@ pub async fn delete_document(state: State<'_, Arc<Mutex<AppState>>>, id: String)
     }
 
     // Delete from database
+    let db = state
+        .db
+        .as_mut()
+        .ok_or(crate::core::errors::AxiomError::WorkspaceNotInitialized)?;
     db.delete_document(&id).await?;
 
     Ok(())

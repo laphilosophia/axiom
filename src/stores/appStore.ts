@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals'
-import type { Document } from '@types/document'
+import type { Document } from '../types/document'
 
 // Global state signals
 export const documentsSignal = signal<Document[]>([])

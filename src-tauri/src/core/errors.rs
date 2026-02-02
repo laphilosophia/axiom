@@ -1,15 +1,17 @@
+use serde::Serialize;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Serialize, Clone)]
+#[serde(tag = "type", content = "message")]
 pub enum AxiomError {
     #[error("Database error: {0}")]
-    Database(#[from] surrealdb::Error),
+    Database(String),
 
     #[error("Search engine error: {0}")]
     Search(String),
 
     #[error("File system error: {0}")]
-    FileSystem(#[from] std::io::Error),
+    FileSystem(String),
 
     #[error("Document not found: {0}")]
     DocumentNotFound(String),
@@ -24,7 +26,34 @@ pub enum AxiomError {
     MlInference(String),
 
     #[error("Serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
+    Serialization(String),
+
+    #[error("General error: {0}")]
+    General(String),
+}
+
+impl From<surrealdb::Error> for AxiomError {
+    fn from(err: surrealdb::Error) -> Self {
+        AxiomError::Database(err.to_string())
+    }
+}
+
+impl From<std::io::Error> for AxiomError {
+    fn from(err: std::io::Error) -> Self {
+        AxiomError::FileSystem(err.to_string())
+    }
+}
+
+impl From<serde_json::Error> for AxiomError {
+    fn from(err: serde_json::Error) -> Self {
+        AxiomError::Serialization(err.to_string())
+    }
+}
+
+impl From<anyhow::Error> for AxiomError {
+    fn from(err: anyhow::Error) -> Self {
+        AxiomError::General(err.to_string())
+    }
 }
 
 pub type Result<T> = std::result::Result<T, AxiomError>;

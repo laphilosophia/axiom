@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri'
-import type { Document, SimilarityResult } from '@types/document'
-import { AlertTriangle, GitBranch, Link, RefreshCw, Sparkles } from 'lucide-react'
+import { AlertTriangle, GitBranch, Link, RefreshCw, Sparkles } from 'lucide-preact'
 import { useEffect, useState } from 'preact/hooks'
+import type { Document, SimilarityResult } from '../types/document'
 
 interface OrchestrationPanelProps {
   document: Document | null

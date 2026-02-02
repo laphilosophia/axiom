@@ -54,7 +54,7 @@ impl FileManager {
 
     pub async fn read_document(&self, document_id: &str) -> Result<String> {
         let doc_path = self.document_path(document_id);
-        fs::read_to_string(&doc_path).map_err(AxiomError::FileSystem)
+        fs::read_to_string(&doc_path).map_err(|e| AxiomError::FileSystem(e.to_string()))
     }
 
     pub async fn read_sidecar(&self, document_id: &str) -> Result<Option<SidecarMetadata>> {
@@ -101,12 +101,7 @@ impl FileManager {
                     .file_stem()
                     .and_then(|s| s.to_str())
                     .map(|s| s.to_string())
-                    .ok_or_else(|| {
-                        AxiomError::FileSystem(std::io::Error::new(
-                            std::io::ErrorKind::InvalidData,
-                            "Invalid filename",
-                        ))
-                    })?;
+                    .ok_or_else(|| AxiomError::FileSystem("Invalid filename".to_string()))?;
 
                 documents.push((stem, path));
             }

@@ -1,15 +1,19 @@
 import { invoke } from '@tauri-apps/api/tauri'
-import type { Document, DocumentStatus } from '@types/document'
-import { debounce } from '@utils/debounce'
-import { AlertCircle, Archive, FileCheck, Save } from 'lucide-react'
+import { AlertCircle, Archive, FileCheck, Save } from 'lucide-preact'
 import { useCallback, useEffect, useState } from 'preact/hooks'
+import type { Document, DocumentStatus } from '../types/document'
+import { debounce } from '../utils/debounce'
 
 interface EditorPanelProps {
   document: Document | null
   onDocumentChange: () => void
 }
 
-const statusOptions: { value: DocumentStatus; label: string; icon: typeof Save }[] = [
+const statusOptions: {
+  value: DocumentStatus
+  label: string
+  icon: typeof Save
+}[] = [
   { value: 'draft', label: 'Draft', icon: AlertCircle },
   { value: 'active', label: 'Active', icon: FileCheck },
   { value: 'superseded', label: 'Superseded', icon: Archive },

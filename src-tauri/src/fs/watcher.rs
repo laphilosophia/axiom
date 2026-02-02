@@ -1,10 +1,9 @@
 use std::path::PathBuf;
-use std::sync::Arc;
 use std::time::Duration;
 
-use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use tokio::sync::mpsc;
-use tracing::{debug, error, info, warn};
+use tracing::{error, info};
 
 pub struct FileWatcher {
     _watcher: RecommendedWatcher,

@@ -1,55 +1,38 @@
-use ndarray::Array1;
-use ort::{Environment, Session, SessionBuilder, Value};
-use std::sync::Arc;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
-use crate::core::errors::{AxiomError, Result};
+use crate::core::errors::Result;
 
-pub struct OnnxEngine {
-    session: Session,
-    environment: Arc<Environment>,
-}
+/// Placeholder ONNX Engine
+///
+/// The full ONNX implementation is planned for future release.
+/// For now, this provides a simplified similarity calculation
+/// based on keyword matching and basic heuristics.
+pub struct OnnxEngine;
 
 impl OnnxEngine {
     pub fn new() -> Result<Self> {
-        info!("Initializing ONNX Runtime");
+        info!("Initializing ONNX Engine (placeholder mode)");
+        warn!("Full ONNX support not yet implemented - using keyword fallback");
 
-        let environment = Arc::new(
-            Environment::builder()
-                .with_name("axiom")
-                .build()
-                .map_err(|e| AxiomError::MlInference(e.to_string()))?,
-        );
-
-        // For now, we'll create a placeholder session
-        // In production, load the actual Paraphrase-multilingual model
-        let session = SessionBuilder::new(&environment)
-            .map_err(|e| AxiomError::MlInference(e.to_string()))?;
-
-        // Note: Actual model loading would be:
-        // .with_model_from_file("models/paraphrase-multilingual.onnx")
-
-        warn!("ONNX engine initialized in placeholder mode - model not loaded");
-
-        // Return a simplified version for now
-        Err(AxiomError::MlInference(
-            "Model not loaded - using keyword-based fallback".to_string(),
-        ))
+        Ok(Self)
     }
 
+    /// Generate a simple embedding based on keyword frequency
+    /// This is a placeholder for actual ONNX model inference
     pub fn generate_embedding(&self, text: &str) -> Result<Vec<f32>> {
-        // Placeholder implementation
-        // In production, this would use the ONNX model to generate 384-dimensional embeddings
-
         debug!("Generating embedding for text of length: {}", text.len());
 
-        // Simple hashing-based fallback for demo purposes
+        // Simple keyword-based embedding (384 dimensions as placeholder)
         let mut embedding = vec![0.0f32; 384];
-        let bytes = text.as_bytes();
+        let text_lower = text.to_lowercase();
 
-        for (i, byte) in bytes.iter().enumerate() {
-            let idx = (i * 7) % 384;
-            embedding[idx] = (*byte as f32) / 255.0;
+        // Create a simple hash-based embedding from keywords
+        let words: Vec<&str> = text_lower.split_whitespace().collect();
+
+        for word in words.iter() {
+            let hash = Self::simple_hash(word);
+            let idx = (hash as usize) % 384;
+            embedding[idx] += 1.0;
         }
 
         // Normalize
@@ -61,6 +44,15 @@ impl OnnxEngine {
         Ok(embedding)
     }
 
+    fn simple_hash(s: &str) -> u64 {
+        let mut hash: u64 = 5381;
+        for c in s.bytes() {
+            hash = ((hash << 5).wrapping_add(hash)).wrapping_add(c as u64);
+        }
+        hash
+    }
+
+    /// Calculate cosine similarity between two embeddings
     pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
         if a.len() != b.len() {
             return 0.0;
@@ -77,6 +69,7 @@ impl OnnxEngine {
         dot_product / (norm_a * norm_b)
     }
 
+    /// Find similar documents based on embedding similarity
     pub fn find_similar(
         query_embedding: &[f32],
         candidates: &[(String, Vec<f32>)],
@@ -98,12 +91,37 @@ impl OnnxEngine {
         // Take top N
         similarities.into_iter().take(limit).collect()
     }
+
+    /// Calculate similarity between two texts using keyword overlap
+    /// Fallback method when embeddings are not available
+    pub fn text_similarity(a: &str, b: &str) -> f32 {
+        let a_words: std::collections::HashSet<String> = a
+            .to_lowercase()
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .collect();
+
+        let b_words: std::collections::HashSet<String> = b
+            .to_lowercase()
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .collect();
+
+        if a_words.is_empty() || b_words.is_empty() {
+            return 0.0;
+        }
+
+        let intersection: std::collections::HashSet<_> = a_words.intersection(&b_words).collect();
+
+        let union: std::collections::HashSet<_> = a_words.union(&b_words).collect();
+
+        intersection.len() as f32 / union.len() as f32
+    }
 }
 
 impl Default for OnnxEngine {
     fn default() -> Self {
-        // This is a placeholder - actual initialization requires proper error handling
-        panic!("OnnxEngine cannot be default-initialized. Use OnnxEngine::new() instead.")
+        Self::new().expect("Failed to create OnnxEngine")
     }
 }
 
@@ -119,5 +137,18 @@ mod tests {
 
         assert!((OnnxEngine::cosine_similarity(&a, &b) - 0.0).abs() < 0.001);
         assert!((OnnxEngine::cosine_similarity(&a, &c) - 1.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_text_similarity() {
+        let a = "hello world";
+        let b = "hello universe";
+        let c = "completely different";
+
+        let sim_ab = OnnxEngine::text_similarity(a, b);
+        let sim_ac = OnnxEngine::text_similarity(a, c);
+
+        assert!(sim_ab > 0.0);
+        assert!(sim_ac < sim_ab);
     }
 }

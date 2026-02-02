@@ -3,7 +3,6 @@ use tauri::State;
 use tokio::sync::Mutex;
 
 use crate::core::app_state::AppState;
-use crate::core::document::Document;
 use crate::core::errors::Result;
 use crate::core::relationship::{DocumentRelationships, Relationship, RelationshipType};
 

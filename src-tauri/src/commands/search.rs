@@ -34,13 +34,8 @@ pub async fn search_documents(
 
         let mut documents = Vec::new();
         for result in results {
-            // Parse the JSON result to get document ID
-            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&result.doc_json) {
-                if let Some(id) = json.get("id").and_then(|v| v.as_str()) {
-                    if let Some(doc) = db.get_document(id).await? {
-                        documents.push(doc);
-                    }
-                }
+            if let Some(doc) = db.get_document(&result.doc_id).await? {
+                documents.push(doc);
             }
         }
 

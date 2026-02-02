@@ -1,11 +1,11 @@
-import { CommandPalette } from '@components/CommandPalette'
-import { EditorPanel } from '@components/EditorPanel'
-import { LibraryPanel } from '@components/LibraryPanel'
-import { OrchestrationPanel } from '@components/OrchestrationPanel'
-import { useAppStore } from '@stores/appStore'
 import { invoke } from '@tauri-apps/api/tauri'
-import type { Document } from '@types/document'
 import { useEffect, useState } from 'preact/hooks'
+import { CommandPalette } from './components/CommandPalette'
+import { EditorPanel } from './components/EditorPanel'
+import { LibraryPanel } from './components/LibraryPanel'
+import { OrchestrationPanel } from './components/OrchestrationPanel'
+import { useAppStore } from './stores/appStore'
+import type { Document } from './types/document'
 
 export function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)

@@ -84,9 +84,9 @@ impl Document {
     }
 
     pub fn update_content(&mut self, content: String) {
+        self.content_hash = Some(calculate_hash(&content));
         self.content = content;
         self.updated_at = Utc::now();
-        self.content_hash = Some(calculate_hash(&content));
     }
 
     pub fn update_title(&mut self, title: String) {

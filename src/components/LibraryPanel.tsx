@@ -1,6 +1,6 @@
-import type { Document, DocumentStatus } from '@types/document'
-import { FileText, Filter, Plus, Search } from 'lucide-react'
+import { FileText, Filter, Plus, Search } from 'lucide-preact'
 import { useMemo, useState } from 'preact/hooks'
+import type { Document, DocumentStatus } from '../types/document'
 
 interface LibraryPanelProps {
   documents: Document[]

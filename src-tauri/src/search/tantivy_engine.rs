@@ -2,8 +2,8 @@ use std::path::Path;
 
 use tantivy::collector::TopDocs;
 use tantivy::query::QueryParser;
-use tantivy::schema::{Field, Schema, STORED, TEXT};
-use tantivy::{doc, Document as TantivyDocument, Index, IndexReader, IndexWriter, ReloadPolicy};
+use tantivy::schema::{Field, Schema, Value as _, STORED, TEXT};
+use tantivy::{doc, Index, IndexReader, IndexWriter, Searcher, TantivyDocument};
 
 use crate::core::document::Document;
 use crate::core::errors::{AxiomError, Result};
@@ -41,7 +41,6 @@ impl TantivyEngine {
 
         let reader = index
             .reader_builder()
-            .reload_policy(ReloadPolicy::OnCommit)
             .try_into()
             .map_err(|e| AxiomError::Search(e.to_string()))?;
 
@@ -103,11 +102,15 @@ impl TantivyEngine {
         self.writer
             .commit()
             .map_err(|e| AxiomError::Search(e.to_string()))?;
+        // Reload the reader to pick up new commits
+        self.reader
+            .reload()
+            .map_err(|e| AxiomError::Search(e.to_string()))?;
         Ok(())
     }
 
     pub fn search(&self, query: &str, limit: usize) -> Result<Vec<SearchResult>> {
-        let searcher = self.reader.searcher();
+        let searcher: Searcher = self.reader.searcher();
 
         let query_parser = QueryParser::for_index(
             &self.index,
@@ -128,11 +131,16 @@ impl TantivyEngine {
                 .doc(doc_address)
                 .map_err(|e| AxiomError::Search(e.to_string()))?;
 
-            let doc_json = self.schema.to_json(&retrieved_doc);
-            results.push(SearchResult {
-                doc_json,
-                score: _score,
-            });
+            // Get document ID from the retrieved doc
+            if let Some(id_value) = retrieved_doc.get_first(self.fields.id) {
+                let id_str: &str = id_value.as_str().unwrap_or("");
+                if !id_str.is_empty() {
+                    results.push(SearchResult {
+                        doc_id: id_str.to_string(),
+                        score: _score,
+                    });
+                }
+            }
         }
 
         Ok(results)
@@ -140,6 +148,6 @@ impl TantivyEngine {
 }
 
 pub struct SearchResult {
-    pub doc_json: String,
+    pub doc_id: String,
     pub score: f32,
 }
