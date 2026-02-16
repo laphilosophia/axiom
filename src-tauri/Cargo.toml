@@ -20,7 +20,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Core dependencies
-surrealdb = { version = "1.5", features = ["kv-mem"] }
+surrealdb = { version = "2.6", features = ["kv-mem"] }
 tantivy = "0.25"
 
 # File system
