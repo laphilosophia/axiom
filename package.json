@@ -32,7 +32,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tauri-apps/api": "^1.5.3",
-    "lucide-preact": "^0.309.0",
+    "lucide-preact": "^0.564.0",
     "marked": "^17.0.1",
     "preact": "^10.19.3"
   },
