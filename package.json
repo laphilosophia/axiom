@@ -34,7 +34,7 @@
     "@tauri-apps/api": "^1.5.3",
     "lucide-preact": "^0.309.0",
     "marked": "^17.0.1",
-    "preact": "^10.19.3"
+    "preact": "^10.28.4"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.1",
