@@ -24,7 +24,7 @@ surrealdb = { version = "1.5", features = ["kv-mem"] }
 tantivy = "0.25"
 
 # File system
-notify = { version = "6.1", features = ["macos_fsevent"] }
+notify = { version = "8.2", features = ["macos_fsevent"] }
 notify-debouncer-mini = "0.4"
 walkdir = "2.4"
 
