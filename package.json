@@ -19,7 +19,7 @@
     "@codemirror/state": "^6.5.4",
     "@codemirror/theme-one-dark": "^6.1.3",
     "@codemirror/view": "^6.39.15",
-    "@milkdown/core": "^7.3.3",
+    "@milkdown/core": "^7.20.0",
     "@milkdown/plugin-listener": "^7.20.0",
     "@milkdown/preset-commonmark": "^7.3.3",
     "@milkdown/preset-gfm": "^7.3.3",
@@ -42,7 +42,7 @@
     "@types/node": "^20.11.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.5.13",
-    "tailwindcss": "^4.2.0",
+    "tailwindcss": "^4.2.4",
     "typescript": "^5.3.3",
     "vite": "^8.0.5"
   }
