@@ -37,7 +37,7 @@
     "preact": "^10.28.4"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.8.1",
+    "@preact/preset-vite": "^2.10.5",
     "@tauri-apps/cli": "^2.10.0",
     "@types/node": "^20.11.0",
     "autoprefixer": "^10.4.16",
