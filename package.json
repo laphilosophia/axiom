@@ -23,7 +23,7 @@
     "@milkdown/plugin-listener": "^7.20.0",
     "@milkdown/preset-commonmark": "^7.3.3",
     "@milkdown/preset-gfm": "^7.3.3",
-    "@milkdown/prose": "^7.3.3",
+    "@milkdown/prose": "^7.20.0",
     "@milkdown/react": "^7.20.0",
     "@milkdown/theme-nord": "^7.3.3",
     "@preact/signals": "^2.8.1",
